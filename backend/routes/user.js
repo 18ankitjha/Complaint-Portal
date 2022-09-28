@@ -5,6 +5,7 @@ const {body,validationResult} =require('express-validator')
 const bcrypt=require('bcrypt')
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = "AnkitIsaDeveloper"
+const fetchuser=require('../middleware/fetchuser')
 
 
 router.post('/signup',[
@@ -61,9 +62,10 @@ router.post('/signup',[
     }
 
 })
+
 router.post('/login',[
-    body('name','Enter a valid name').isLength({min:3}),
-    body('pasword','Password cannot be blank').isLength({min:1})
+    // body('email','Enter a valid ').isLength({min:3}),
+    body('password','Password cannot be blank').isLength({min:1})
 ],async(req,res)=>{
     const errors=validationResult(req);
     let success=false;
@@ -71,10 +73,39 @@ router.post('/login',[
         return res.status(400).json({ success,errors: errors.array() });
     }
     try {
-        
+        const { email, password } = req.body
+        let user=await User.findOne({email});
+        let success=false;
+        if(!user){
+            res.status(400).json({success,error:"Sorry user with this email doesnot exist"})
+        }
+        const passwordmatch=await bcrypt.compare(password,user.password);
+        if (!passwordmatch) {
+            return res.status(400).json({success, error: "Enter valid crediantials" });
+        }
+        const data = {
+            id: user.id
+          }
+        const authtoken = jwt.sign(data, JWT_SECRET)
+        console.log(authtoken);
+        success=true;
+        res.json({success,authtoken})
     } catch (error) {
         console.error(error.message);
         res.status(500).send("Some error occured",error.message)
     }
 })
+
+router.post('/getuser',fetchuser,async(req,res)=>{
+    try {
+        const userId=req.user.id
+        console.log(userId)
+       const user =await User.findOne({userId}).select("-password")
+        res.send(user);
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send("Some Internal error occured")
+    }
+})
+
 module.exports = router
