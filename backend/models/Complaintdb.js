@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const ComplaintSchema=new mongoose.Schema({
+const complaintSchema=new mongoose.Schema({
     title:{
         type:String,
         required:true
@@ -12,6 +12,10 @@ const ComplaintSchema=new mongoose.Schema({
     tag:{
         type:String
     },
+    status:{
+        type:String,
+        default:"open"
+    },
     date:{
         type:Date,
         default:Date.now
@@ -20,8 +24,8 @@ const ComplaintSchema=new mongoose.Schema({
         
     }
 })
+//cleaniness,maintainence,network issue,food,electricithy
 
-
-const ComplaintDairy=mongoose.Schema('ComplaintDairy',ComplaintSchema);
+const ComplaintDairy=mongoose.model('ComplaintDairy',complaintSchema);
 module.exports=ComplaintDairy;
 

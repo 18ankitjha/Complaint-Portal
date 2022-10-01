@@ -8,7 +8,7 @@ require('dotenv').config();
 app.use(express.json())
 
 app.use('/api/user',require('./routes/user'))
-
+app.use('/api/complaint',require('./routes/complaint'));
 app.listen(port, () => {
     console.log(`Notebook listening on port ${port}`)
   })
